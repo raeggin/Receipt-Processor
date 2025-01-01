@@ -1,11 +1,9 @@
 package main
 
 import (
-	//"fmt"
 	"fmt"
 	"log"
 	"net/http"
-	//"net/http"
 )
 
 // Define a handler function for root endpoint
