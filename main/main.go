@@ -6,6 +6,26 @@ import (
 	"net/http"
 )
 
+// Create the Items struct
+type Items struct {
+	Description string `json:"description"`
+	Price       string `json:"price"`
+}
+
+// Create the Recipt struct
+type Receipt struct {
+	Retailer     string  `json:"retailer"`
+	PurchaseDate string  `json:"purchaseDate"`
+	PurchaseTime string  `json:"purchaseTime"`
+	Total        float64 `json:"total"`
+	Items        Items   `json:"items"`
+}
+
+// Create ReceiptResponse struct; this is the response structure for when you create a new receipt
+type ReceiptResponse struct {
+	Id string `json:"id"`
+}
+
 // Define a handler function for root endpoint
 func okHandler(w http.ResponseWriter, r *http.Request) {
 	// Set headers
@@ -13,6 +33,7 @@ func okHandler(w http.ResponseWriter, r *http.Request) {
 	// Send an "OK" message
 	fmt.Fprint(w, "OK")
 }
+
 func main() {
 	// Register handler functions for routes
 	http.HandleFunc("/", okHandler)
