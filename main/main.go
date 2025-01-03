@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 // Create the Items struct
@@ -34,9 +36,32 @@ func okHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "OK")
 }
 
+// Define a handler function for POST /receipt/process endpoint
+func postReceiptProccessHandler(w http.ResponseWriter, r *http.Request) {
+	// Set headers
+	w.Header().Set("Content-Type", "application/json")
+
+	//Create UUID
+	id := uuid.New()
+
+	//Send message
+	fmt.Fprint(w, "This is my Post request: ", id)
+}
+
+// Define a handler function for GET /receipts/{id}/points endpoint
+func getReceiptProccesHandler(w http.ResponseWriter, r *http.Request) {
+	// Set headers
+	w.Header().Set("Content-Type", "application/json")
+
+	//Send message
+	fmt.Fprint(w, "This is my GET request: ")
+}
+
 func main() {
 	// Register handler functions for routes
 	http.HandleFunc("/", okHandler)
+	http.HandleFunc("/receipts/process", postReceiptProccessHandler)
+	http.HandleFunc("/receipts/{id}/points", getReceiptProccesHandler)
 
 	// Set the address and port to listen on
 	port := ":8080"
