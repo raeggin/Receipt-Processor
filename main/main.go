@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"unicode"
 
 	"github.com/google/uuid"
@@ -48,7 +49,7 @@ func okHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Calculates one point for every alphanumeric character in the retailer name
-func alphanumericCalculator(retailer string, id string) {
+func awardPointsForAlphanumeric(retailer string, id string) {
 	var totalPoints = len(retailer)
 	fmt.Println("Points: ", totalPoints)
 	for _, char := range retailer {
@@ -60,8 +61,20 @@ func alphanumericCalculator(retailer string, id string) {
 	fmt.Println("RULE 1 TOTAL POINTS: ", pointsRecord[id])
 }
 
+// Adds 50 points if the total is a round dollar amount with no cents
+func awardPointsForRoundTotal(total string, id string) {
+	var cents = (strings.Split(total, "."))[1]
+	if cents == "00" {
+		pointsRecord[id] = pointsRecord[id] + 50
+	}
+	fmt.Println("RULE 2 ROUND TOTAL: ", pointsRecord[id])
+}
+
+// Runs all rules for awarded points
 func calculatePoints(receipt Receipt, id string) {
-	alphanumericCalculator(receipt.Retailer, id)
+	awardPointsForAlphanumeric(receipt.Retailer, id)
+	awardPointsForRoundTotal(receipt.Total, id)
+
 }
 
 // Define a handler function for POST /receipt/process endpoint
