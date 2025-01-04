@@ -39,13 +39,13 @@ func okHandler(w http.ResponseWriter, r *http.Request) {
 
 // Define a handler function for POST /receipt/process endpoint
 func postReceiptProccessHandler(w http.ResponseWriter, r *http.Request) {
-	//check if Post request
+	// Validate for post request
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	//Parse the JSON data from the request body
+	// Parse the JSON data from the request body
 	var receipt Receipt
 	err := json.NewDecoder(r.Body).Decode(&receipt)
 	if err != nil {
@@ -53,14 +53,18 @@ func postReceiptProccessHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//Create UUID and assign it to a ReceiptResponse Struct
+	// Create UUID and assign it to a ReceiptResponse Struct
 	id := uuid.New().String()
+	var receiptResponse ReceiptResponse
+	receiptResponse.Id = id
 
 	// Set headers
 	w.Header().Set("Content-Type", "application/json")
 
-	//Send message
-	fmt.Fprint(w, "This is my Post request: ", id)
+	// Response
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(receiptResponse)
+
 }
 
 // Define a handler function for GET /receipts/{id}/points endpoint
