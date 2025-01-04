@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,8 +11,8 @@ import (
 
 // Create the Items struct
 type Items struct {
-	Description string `json:"description"`
-	Price       string `json:"price"`
+	ShortDescription string `json:"shortDescription"`
+	Price            string `json:"price"`
 }
 
 // Create the Recipt struct
@@ -19,8 +20,8 @@ type Receipt struct {
 	Retailer     string  `json:"retailer"`
 	PurchaseDate string  `json:"purchaseDate"`
 	PurchaseTime string  `json:"purchaseTime"`
-	Total        float64 `json:"total"`
-	Items        Items   `json:"items"`
+	Total        string  `json:"total"`
+	Items        []Items `json:"items"`
 }
 
 // Create ReceiptResponse struct; this is the response structure for when you create a new receipt
@@ -38,11 +39,25 @@ func okHandler(w http.ResponseWriter, r *http.Request) {
 
 // Define a handler function for POST /receipt/process endpoint
 func postReceiptProccessHandler(w http.ResponseWriter, r *http.Request) {
+	//check if Post request
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	//Parse the JSON data from the request body
+	var receipt Receipt
+	err := json.NewDecoder(r.Body).Decode(&receipt)
+	if err != nil {
+		fmt.Println("Error decoding JSON:", err)
+		return
+	}
+
+	//Create UUID and assign it to a ReceiptResponse Struct
+	id := uuid.New().String()
+
 	// Set headers
 	w.Header().Set("Content-Type", "application/json")
-
-	//Create UUID
-	id := uuid.New()
 
 	//Send message
 	fmt.Fprint(w, "This is my Post request: ", id)
