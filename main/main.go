@@ -46,8 +46,8 @@ func okHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "OK")
 }
 
-func calculatePoints() {
-	fmt.Println("DO SOME CALCULATIONS")
+func calculatePoints(Id string) {
+	fmt.Println(Id)
 }
 
 // Define a handler function for POST /receipt/process endpoint
@@ -82,18 +82,26 @@ func postReceiptProccessHandler(w http.ResponseWriter, r *http.Request) {
 func getReceiptProccesHandler(w http.ResponseWriter, r *http.Request) {
 	// Validate for post request
 	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusBadRequest)
+		http.Error(w, "Invalid request method:", http.StatusBadRequest)
 		return
 	}
-	// Validate and calculate the points
-	calculatePoints()
-	// Get the current amount of points for the given Id
-	//var pointsResponse PointsResponse
-	//pointsResponse.Points = float64(pointsRecord[id])
+	// Get id from url
+	vars := mux.Vars(r)
+	id := vars["id"]
+	//Check for ID in the points record
+	value, exists := pointsRecord[id]
+	if !exists {
+		http.Error(w, "Receipt not found", http.StatusNotFound)
+		return
+	}
+	// Set value to pointsResponse struct for response
+	var pointsResponse PointsResponse
+	pointsResponse.Points = float64(value)
 	// Set headers
 	w.Header().Set("Content-Type", "application/json")
-	//Send message
-	fmt.Fprint(w, "This is my GET request: ")
+	// Response
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(pointsResponse)
 }
 
 func main() {
