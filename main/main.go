@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 // Create the Items struct
@@ -24,9 +25,17 @@ type Receipt struct {
 	Items        []Items `json:"items"`
 }
 
+// Keep record of points
+var pointsRecord = map[string]int{}
+
 // Create ReceiptResponse struct; this is the response structure for when you create a new receipt
 type ReceiptResponse struct {
 	Id string `json:"id"`
+}
+
+// Create Points Struct; this is the response for when you retrieve the points of a receipt with a given Id
+type PointsResponse struct {
+	Points float64 `json:"points"`
 }
 
 // Define a handler function for root endpoint
@@ -37,11 +46,15 @@ func okHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "OK")
 }
 
+func calculatePoints() {
+	fmt.Println("DO SOME CALCULATIONS")
+}
+
 // Define a handler function for POST /receipt/process endpoint
 func postReceiptProccessHandler(w http.ResponseWriter, r *http.Request) {
 	// Validate for post request
 	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		http.Error(w, "Invalid request method", http.StatusBadRequest)
 		return
 	}
 	// Parse the JSON data from the request body
@@ -55,6 +68,8 @@ func postReceiptProccessHandler(w http.ResponseWriter, r *http.Request) {
 	id := uuid.New().String()
 	var receiptResponse ReceiptResponse
 	receiptResponse.Id = id
+	// Initialize Id and zero points to the points record system
+	pointsRecord[id] = 0
 	// Set headers
 	w.Header().Set("Content-Type", "application/json")
 	// Response
@@ -65,6 +80,16 @@ func postReceiptProccessHandler(w http.ResponseWriter, r *http.Request) {
 
 // Define a handler function for GET /receipts/{id}/points endpoint
 func getReceiptProccesHandler(w http.ResponseWriter, r *http.Request) {
+	// Validate for post request
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid request method", http.StatusBadRequest)
+		return
+	}
+	// Validate and calculate the points
+	calculatePoints()
+	// Get the current amount of points for the given Id
+	//var pointsResponse PointsResponse
+	//pointsResponse.Points = float64(pointsRecord[id])
 	// Set headers
 	w.Header().Set("Content-Type", "application/json")
 	//Send message
@@ -72,17 +97,20 @@ func getReceiptProccesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// Create new router
+	router := mux.NewRouter()
+
 	// Register handler functions for routes
-	http.HandleFunc("/", okHandler)
-	http.HandleFunc("/receipts/process", postReceiptProccessHandler)
-	http.HandleFunc("/receipts/{id}/points", getReceiptProccesHandler)
+	router.HandleFunc("/", okHandler)
+	router.HandleFunc("/receipts/process", postReceiptProccessHandler)
+	router.HandleFunc("/receipts/{id}/points", getReceiptProccesHandler).Methods("GET")
 
 	// Set the address and port to listen on
 	port := ":8080"
 	fmt.Println("Starting server on port:", port)
 
 	// Start the server and log errors if any
-	err := http.ListenAndServe(port, nil)
+	err := http.ListenAndServe(":8080", router)
 	if err != nil {
 		log.Fatal("Error starting server:", err)
 	}
