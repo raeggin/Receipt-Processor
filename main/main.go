@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"unicode"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -46,8 +47,21 @@ func okHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "OK")
 }
 
-func calculatePoints(Id string) {
-	fmt.Println(Id)
+// Calculates one point for every alphanumeric character in the retailer name
+func alphanumericCalculator(retailer string, id string) {
+	var totalPoints = len(retailer)
+	fmt.Println("Points: ", totalPoints)
+	for _, char := range retailer {
+		if !unicode.IsLetter(char) && !unicode.IsDigit(char) {
+			totalPoints = totalPoints - 1
+		}
+	}
+	pointsRecord[id] = pointsRecord[id] + totalPoints
+	fmt.Println("RULE 1 TOTAL POINTS: ", pointsRecord[id])
+}
+
+func calculatePoints(receipt Receipt, id string) {
+	alphanumericCalculator(receipt.Retailer, id)
 }
 
 // Define a handler function for POST /receipt/process endpoint
@@ -68,8 +82,9 @@ func postReceiptProccessHandler(w http.ResponseWriter, r *http.Request) {
 	id := uuid.New().String()
 	var receiptResponse ReceiptResponse
 	receiptResponse.Id = id
-	// Initialize Id and zero points to the points record system
+	// Initialize Id and zero points to the points record system and do calculations
 	pointsRecord[id] = 0
+	calculatePoints(receipt, id)
 	// Set headers
 	w.Header().Set("Content-Type", "application/json")
 	// Response
