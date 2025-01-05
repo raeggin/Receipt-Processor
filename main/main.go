@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -70,10 +71,24 @@ func awardPointsForRoundTotal(total string, id string) {
 	fmt.Println("RULE 2 ROUND TOTAL: ", pointsRecord[id])
 }
 
+// Adds 25 points if the total is a multiple of 0.25
+func awardPointsForMultipleOf(total string, id string) {
+	floatValue, err := strconv.ParseFloat(total, 64)
+	if err != nil {
+		fmt.Println("Total can not be converted to float64 :", err)
+		return
+	}
+	if int(floatValue*4)%4 == 0 {
+		pointsRecord[id] = pointsRecord[id] + 25
+	}
+	fmt.Println("RULE 3 ROUND TOTAL: ", pointsRecord[id])
+}
+
 // Runs all rules for awarded points
 func calculatePoints(receipt Receipt, id string) {
 	awardPointsForAlphanumeric(receipt.Retailer, id)
 	awardPointsForRoundTotal(receipt.Total, id)
+	awardPointsForMultipleOf(receipt.Total, id)
 
 }
 
@@ -81,7 +96,7 @@ func calculatePoints(receipt Receipt, id string) {
 func postReceiptProccessHandler(w http.ResponseWriter, r *http.Request) {
 	// Validate for post request
 	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusBadRequest)
+		http.Error(w, "The receipt is invalid.", http.StatusBadRequest)
 		return
 	}
 	// Parse the JSON data from the request body
@@ -119,7 +134,7 @@ func getReceiptProccesHandler(w http.ResponseWriter, r *http.Request) {
 	//Check for ID in the points record
 	value, exists := pointsRecord[id]
 	if !exists {
-		http.Error(w, "Receipt not found", http.StatusNotFound)
+		http.Error(w, "No receipt found for that ID.", http.StatusNotFound)
 		return
 	}
 	// Set value to pointsResponse struct for response
