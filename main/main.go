@@ -91,12 +91,25 @@ func awardPointsForEveryPair(items []Items, id string) {
 	fmt.Println("RULE 4 ROUND TOTAL: ", pointsRecord[id])
 }
 
+// Adds 6 points if the day in the purchase date is odd
+func awardPointsForOddDay(date string, id string) {
+	day, err := strconv.Atoi(((strings.Split(date, "-"))[2]))
+	if err != nil {
+		fmt.Println("Error getting day: ", err)
+	}
+	if day%2 != 0 {
+		pointsRecord[id] = pointsRecord[id] + 6
+	}
+	fmt.Println("RULE 5 ROUND TOTAL: ", pointsRecord[id])
+}
+
 // Runs all rules for awarded points
 func calculatePoints(receipt Receipt, id string) {
 	awardPointsForAlphanumeric(receipt.Retailer, id)
 	awardPointsForRoundTotal(receipt.Total, id)
 	awardPointsForMultipleOf(receipt.Total, id)
 	awardPointsForEveryPair(receipt.Items, id)
+	awardPointsForOddDay(receipt.PurchaseDate, id)
 }
 
 // Define a handler function for POST /receipt/process endpoint
