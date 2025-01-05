@@ -84,12 +84,19 @@ func awardPointsForMultipleOf(total string, id string) {
 	fmt.Println("RULE 3 ROUND TOTAL: ", pointsRecord[id])
 }
 
+// Adds 5 points for every two items on the receipt
+func awardPointsForEveryPair(items []Items, id string) {
+	var pairs = len(items) / 2
+	pointsRecord[id] = pointsRecord[id] + (pairs * 5)
+	fmt.Println("RULE 4 ROUND TOTAL: ", pointsRecord[id])
+}
+
 // Runs all rules for awarded points
 func calculatePoints(receipt Receipt, id string) {
 	awardPointsForAlphanumeric(receipt.Retailer, id)
 	awardPointsForRoundTotal(receipt.Total, id)
 	awardPointsForMultipleOf(receipt.Total, id)
-
+	awardPointsForEveryPair(receipt.Items, id)
 }
 
 // Define a handler function for POST /receipt/process endpoint
