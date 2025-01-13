@@ -94,7 +94,7 @@ func awardPointsForEveryPair(items []Items, id string) {
 
 func awardPointsForDescriptions(items []Items, id string) {
 	for _, item := range items {
-		if (len(strings.TrimSpace(item.ShortDescription))*3)%3 == 0 {
+		if (len(strings.TrimSpace(item.ShortDescription)))%3 == 0 {
 			price, _ := strconv.ParseFloat(item.Price, 64)
 			points := math.Ceil(price * 0.2)
 			pointsRecord[id] = pointsRecord[id] + int(points)
