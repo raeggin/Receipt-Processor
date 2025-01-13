@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -91,6 +92,17 @@ func awardPointsForEveryPair(items []Items, id string) {
 	fmt.Println("RULE 4 ROUND TOTAL: ", pointsRecord[id])
 }
 
+func awardPointsForDescriptions(items []Items, id string) {
+	for _, item := range items {
+		if (len(strings.TrimSpace(item.ShortDescription))*3)%3 == 0 {
+			price, _ := strconv.ParseFloat(item.Price, 64)
+			points := math.Ceil(price * 0.2)
+			pointsRecord[id] = pointsRecord[id] + int(points)
+		}
+	}
+	fmt.Println("RULE 5 ROUND TOTAL: ", pointsRecord[id])
+}
+
 // Adds 6 points if the day in the purchase date is odd
 func awardPointsForOddDay(date string, id string) {
 	day, err := strconv.Atoi(((strings.Split(date, "-"))[2]))
@@ -100,7 +112,7 @@ func awardPointsForOddDay(date string, id string) {
 	if day%2 != 0 {
 		pointsRecord[id] = pointsRecord[id] + 6
 	}
-	fmt.Println("RULE 5 ROUND TOTAL: ", pointsRecord[id])
+	fmt.Println("RULE 6 ROUND TOTAL: ", pointsRecord[id])
 }
 
 // Adds 10 points if the time of purchase is after 2:00pm and before 4:00pm
@@ -112,7 +124,7 @@ func awardPointsForTime(purchaseTime string, id string) {
 	if hour >= 14 && hour <= 16 {
 		pointsRecord[id] = pointsRecord[id] + 10
 	}
-	fmt.Println("RULE 6 ROUND TOTAL: ", pointsRecord[id])
+	fmt.Println("RULE 7 ROUND TOTAL: ", pointsRecord[id])
 }
 
 // Runs all rules for awarded points
@@ -123,6 +135,7 @@ func calculatePoints(receipt Receipt, id string) {
 	awardPointsForEveryPair(receipt.Items, id)
 	awardPointsForOddDay(receipt.PurchaseDate, id)
 	awardPointsForTime(receipt.PurchaseTime, id)
+	awardPointsForDescriptions(receipt.Items, id)
 }
 
 // Define a handler function for POST /receipt/process endpoint
