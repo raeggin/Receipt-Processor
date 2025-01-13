@@ -42,25 +42,15 @@ type PointsResponse struct {
 	Points float64 `json:"points"`
 }
 
-// Define a handler function for root endpoint
-func okHandler(w http.ResponseWriter, r *http.Request) {
-	// Set headers
-	w.Header().Set("Content-Type", "application/json")
-	// Send an "OK" message
-	fmt.Fprint(w, "OK")
-}
-
 // Calculates one point for every alphanumeric character in the retailer name
 func awardPointsForAlphanumeric(retailer string, id string) {
 	var totalPoints = len(retailer)
-	fmt.Println("Points: ", totalPoints)
 	for _, char := range retailer {
 		if !unicode.IsLetter(char) && !unicode.IsDigit(char) {
 			totalPoints = totalPoints - 1
 		}
 	}
 	pointsRecord[id] = pointsRecord[id] + totalPoints
-	fmt.Println("RULE 1 TOTAL POINTS: ", pointsRecord[id])
 }
 
 // Adds 50 points if the total is a round dollar amount with no cents
@@ -69,7 +59,6 @@ func awardPointsForRoundTotal(total string, id string) {
 	if cents == "00" {
 		pointsRecord[id] = pointsRecord[id] + 50
 	}
-	fmt.Println("RULE 2 ROUND TOTAL: ", pointsRecord[id])
 }
 
 // Adds 25 points if the total is a multiple of 0.25
@@ -82,14 +71,12 @@ func awardPointsForMultipleOf(total string, id string) {
 	if int(floatValue*4)%4 == 0 {
 		pointsRecord[id] = pointsRecord[id] + 25
 	}
-	fmt.Println("RULE 3 ROUND TOTAL: ", pointsRecord[id])
 }
 
 // Adds 5 points for every two items on the receipt
 func awardPointsForEveryPair(items []Items, id string) {
 	var pairs = len(items) / 2
 	pointsRecord[id] = pointsRecord[id] + (pairs * 5)
-	fmt.Println("RULE 4 ROUND TOTAL: ", pointsRecord[id])
 }
 
 func awardPointsForDescriptions(items []Items, id string) {
@@ -100,7 +87,6 @@ func awardPointsForDescriptions(items []Items, id string) {
 			pointsRecord[id] = pointsRecord[id] + int(points)
 		}
 	}
-	fmt.Println("RULE 5 ROUND TOTAL: ", pointsRecord[id])
 }
 
 func awardPointsForLLM(total string, id string) {
@@ -108,7 +94,6 @@ func awardPointsForLLM(total string, id string) {
 	if receiptTotal > 10.00 {
 		pointsRecord[id] = pointsRecord[id] + 5
 	}
-	fmt.Println("RULE 6 ROUND TOTAL: ", pointsRecord[id])
 }
 
 // Adds 6 points if the day in the purchase date is odd
@@ -120,7 +105,6 @@ func awardPointsForOddDay(date string, id string) {
 	if day%2 != 0 {
 		pointsRecord[id] = pointsRecord[id] + 6
 	}
-	fmt.Println("RULE 7 ROUND TOTAL: ", pointsRecord[id])
 }
 
 // Adds 10 points if the time of purchase is after 2:00pm and before 4:00pm
@@ -132,7 +116,6 @@ func awardPointsForTime(purchaseTime string, id string) {
 	if hour >= 14 && hour <= 16 {
 		pointsRecord[id] = pointsRecord[id] + 10
 	}
-	fmt.Println("RULE 8 ROUND TOTAL: ", pointsRecord[id])
 }
 
 // Runs all rules for awarded points
@@ -207,7 +190,6 @@ func main() {
 	router := mux.NewRouter()
 
 	// Register handler functions for routes
-	router.HandleFunc("/", okHandler)
 	router.HandleFunc("/receipts/process", postReceiptProccessHandler)
 	router.HandleFunc("/receipts/{id}/points", getReceiptProccesHandler).Methods("GET")
 
