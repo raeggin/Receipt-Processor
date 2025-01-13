@@ -180,7 +180,7 @@ func postReceiptProccessHandler(w http.ResponseWriter, r *http.Request) {
 func getReceiptProccesHandler(w http.ResponseWriter, r *http.Request) {
 	// Validate for post request
 	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method:", http.StatusBadRequest)
+		http.Error(w, "The receipt is invalid.", http.StatusBadRequest)
 		return
 	}
 	// Get id from url
